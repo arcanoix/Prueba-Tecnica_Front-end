@@ -1,21 +1,24 @@
+import { faLocation } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 const NotFound = () => {
-                return (
-                  <div className="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    
-                      <div
-                        className="rounded-lg border bg-card text-card-foreground shadow-sm"
-                        data-v0-t="card"
-                      >
-                        <div className="flex flex-col space-y-1.5 p-6 pb-0">
-                          <h3 className="text-2xl font-semibold whitespace-nowrap leading-none tracking-tight text-center">
-                            <span className="text-lg font-bold">Not Found</span>
-                          </h3>
-                        </div>    
-                      </div>
-                    
-                  </div>
-                );
-              };
-              
-              export default NotFound;
-              
+  return (
+    <div className="w-full h-screen flex flex-col items-center justify-center">
+      <FontAwesomeIcon icon={faLocation} />
+
+      <div className="flex flex-col items-center justify-center">
+        <p className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-wider text-gray-600 mt-8">
+          404
+        </p>
+        <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-600 mt-2">
+          Server Error
+        </p>
+        <p className="md:text-lg xl:text-xl text-gray-500 mt-4">
+          Whoops, something went wrong on our servers.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default NotFound;

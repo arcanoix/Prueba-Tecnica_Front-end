@@ -1,18 +1,24 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import UsersList from "./Users";
 import Spiner from "./Spiner";
-import { validateMinLength, validateNotString } from "../utils";
+import { fetchDataUser, validateMinLength, validateNotString } from "../utils";
+import ChartUser from "./ChartUser";
+import ErrorContext from "../context/ErrorBoundary";
+
 
 const SearchingForm = () => {
   const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
   const [data, setData] = useState([]);
+  const { error, showError } = useContext(ErrorContext);
   const [isValid, setIsValid] = useState({status: false, message: ''});
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    showError(false)
     setIsValid({status: false, message: ''})
     let validationMin = validateMinLength(user.toLowerCase());
     let validationName = validateNotString(user.toLowerCase());
@@ -22,6 +28,7 @@ const SearchingForm = () => {
       setIsValid({status: true, message: 'El campo debe tener al menos 4 caracteres'})
       setLoading(false)
       setData([])
+      setUsers([])
       return;
     }
 
@@ -30,20 +37,48 @@ const SearchingForm = () => {
       setIsValid({status: true, message: `El usuario ${user} no esta permitido para realizar la busqueda`})
       setLoading(false)
       setData([])
+      setUsers([])
       return;
     }
 
-    let { data } = await axios.get(
-      `https://api.github.com/search/users?q=${user}&per_page=10`
-    );
-    console.log(data.items[0]);
+    try{
+      let { data } = await axios.get(
+        `https://api.github.com/search/users?q=${user}&per_page=10`
+      );
+  
+      setData(data.items);
 
-    setData(data.items);
+        fetchDataUser(data.items)
+        .then((response) => {
+          setUsers(response)
+          showError("");
+        })
+        .catch((err) => {
+          console.error(err)
+          showError('Ha ocurrido un error al obtener los datos para la grafica');
+        })
+    }catch(e)
+    {
+      console.error(e)
+      showError('Ha ocurrido un error al obtener los datos');
+    }
+    
+    
+    
     setLoading(false);
   };
 
   return (
     <div className="flex-col">
+      {
+        error ? (
+          <div className="flex items-center justify-center">
+            <p className="text-red-600">{error}</p>
+          </div>
+        ) : null
+      }
+      
+
       <div className="flex items-center justify-center mt-5">
         <form onSubmit={handleSubmit}>
           <div className="flex w-screen items-center justify-center p-5">
@@ -89,7 +124,13 @@ const SearchingForm = () => {
         </form>
       </div>
 
-      {data.length > 0 && user !== "" ? (
+      {users?.length > 0 && user !== "" ? (
+      <div className="flex items-center justify-center pt-6 pb-3">
+      <ChartUser users={users}  />
+      </div>
+      ) : null }
+
+      {data?.length > 0 && user !== "" ? (        
         <div className="flex items-center justify-center p-6">
           <UsersList users={data} />
         </div>
